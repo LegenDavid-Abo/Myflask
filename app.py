@@ -1,8 +1,13 @@
+import os
 import requests
 from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
+
+# ✅ Load environment variables from .env
+load_dotenv()
 
 API_URL = "https://router.huggingface.co/v1/chat/completions"
-API_KEY = "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"
+API_KEY = os.getenv("HF_API_KEY")  # ✅ Load from .env, not hardcoded
 
 headers = {
     "Authorization": f"Bearer {API_KEY}",
@@ -10,92 +15,14 @@ headers = {
 }
 
 RK_CV = """
-You are an AI assistant that always speaks and only relates  ABOUT DAVID OLAYEMI.
+You are an AI assistant that always speaks and only relates ABOUT DAVID OLAYEMI.
 Always refer to him as "OLAYEMI" or "OLAYEMI DAVID".
-
-Curriculum Vitae
-
-Name: David Olayemi
-Phone: +234 902 299 6320
-Email: olabolade999@gmail.com
-Location: Kogi, Nigeria
-
----
-
-Professional Summary
-
-Full Stack Developer and Computer Science graduate (2023) with proven expertise in building modern web applications, cloud-based systems, and IT support solutions. Certified Full Stack Web Developer (Coursera, 2024) and AWS Certified Developer (2024). Skilled in designing, deploying, and maintaining secure, scalable applications with both frontend and backend technologies. Experienced in integrating AI features, optimizing performance, and leveraging cloud services to deliver high-impact solutions. Recognized for adaptability, problem-solving, and commitment to continuous growth.
-
----
-
-Core Skills
-
-Frontend Development: HTML, CSS, JavaScript, React
-Backend Development: Python, Node.js, PHP
-Databases: MySQL, MongoDB
-Cloud Computing: AWS (EC2, Lambda, S3, RDS, API Gateway)
-AI Integration: Implementing intelligent features into applications
-Version Control & Collaboration: Git, GitHub, Agile methods
-IT Support: Troubleshooting, installation, optimization
-Soft Skills: Problem-solving, teamwork, communication, adaptability
-
----
-
-Work Experience
-
-Full Stack Developer / IT Support Intern
-Nigeria Artificial Intelligence Company — July 2023 to July 2024
-
-Developed full-stack web applications with responsive and user-friendly designs.
-Integrated AI-driven features to enhance client solutions and improve efficiency.
-Deployed secure, scalable applications using AWS developer tools and services.
-Provided IT support, troubleshooting, and performance optimization across systems.
-Collaborated with teams to deliver projects that aligned with business objectives.
-
-Freelance Website Developer
-Kogi, Nigeria — 2022 to Present
-
-Designed and deployed personal and business websites tailored to client needs.
-Managed both frontend and backend development, ensuring mobile responsiveness and SEO optimization.
-Delivered full-stack solutions with complete deployment and maintenance.
-Improved user engagement through interactive features and optimized performance.
-
----
-
-Education
-
-B.Sc. Computer Science
-Federal University Lokoja, Nigeria
-Graduated: 2023
-
----
-
-Certifications
-
-AWS Certified Developer – Associate – Amazon Web Services, 2024
-Full Stack Web Development Specialization – Coursera, 2024
-
----
-
-Interests
-
-Full-stack and cloud-based application development
-Artificial Intelligence and emerging technologies
-Cloud DevOps practices and automation
-Research and innovation in software systems
-Mentorship and community tech initiatives
+...
 """
 
 SYSTEM_STYLE = """
 You are ChatGPT, acting as an experienced career coach, mentor, and technical guide.
-Classify user queries into three types: "code", "explanation", or "strategic/career".
-Respond according to type and adapt length:
-
-Short: concise factual answers (1–2 sentences)
-Medium: explanatory (1–2 paragraphs)
-Long: in-depth, multi-step, or strategic advice (3–5 paragraphs)
-
-Always integrate RK’s expertise when relevant. Format code snippets in proper code blocks.
+...
 """
 
 # 🔹 Determine response type
@@ -134,7 +61,7 @@ app = Flask(__name__)
 # 🔹 Route to serve HTML
 @app.route('/')
 def index():
-    return render_template('index.html')  # HTML goes inside templates/index.html
+    return render_template('index.html')
 
 # 🔹 API route for chat
 @app.route('/chat', methods=['POST'])
@@ -161,7 +88,7 @@ def chat():
         data = response.json()
         return jsonify({"reply": data["choices"][0]["message"]["content"]})
     except Exception:
-        return jsonify({"reply": "️❌🌐 Connection lost — Please check your internet connection and try again."})
+        return jsonify({"reply": "❌🌐 Connection lost — Please check your internet connection and try again."})
 
 
 if __name__ == "__main__":
