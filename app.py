@@ -155,9 +155,9 @@ def determine_response_length(user_input: str) -> str:
 
 # 🔹 Map response parameters
 length_params = {
-    "short": {"max_tokens": 100, "temperature": 0.2, "top_p": 0.4},
-    "medium": {"max_tokens": 300, "temperature": 0.5, "top_p": 0.7},
-    "long": {"max_tokens": 900, "temperature": 0.8, "top_p":1.0 }
+    "short": {"max_tokens": 100, "temperature": 0.3, "top_p": 0.8},
+    "medium": {"max_tokens": 300, "temperature": 0.5, "top_p": 0.9},
+    "long": {"max_tokens": 900, "temperature": 0.7, "top_p":0.95 }
 }
 
 # Initialize Flask
