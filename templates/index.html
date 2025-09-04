@@ -138,7 +138,6 @@
     function addMessage(text, sender, color=null) {
       const msg = document.createElement('div');
       msg.classList.add('message', sender);
-      // ✅ changed to innerHTML so backend <span style="color:red;"> works
       msg.innerHTML = text;
       if(color) msg.style.color = color;
       chat.appendChild(msg);
@@ -146,12 +145,14 @@
       return msg;
     }
 
+    // ⚡ Fast streaming with auto-complete fallback
     function startStreaming() {
       streaming = true;
-      sendBtn.textContent = "🟦";
+      sendBtn.textContent = "🔲";
+      const startTime = Date.now();
       streamInterval = setInterval(() => {
-        if(index < reply.length) {
-          currentBotMsg.innerHTML += reply[index]; // ✅ match innerHTML
+        if (index < reply.length) {
+          currentBotMsg.innerHTML += reply[index];
           chat.scrollTop = chat.scrollHeight;
           index++;
         } else {
@@ -159,7 +160,15 @@
           streaming = false;
           sendBtn.textContent = "🔊";
         }
-      }, 50);
+
+        // Auto-complete if it takes too long (>10s safeguard)
+        if (Date.now() - startTime > 10000) {
+          clearInterval(streamInterval);
+          currentBotMsg.innerHTML = reply;
+          streaming = false;
+          sendBtn.textContent = "🔊";
+        }
+      }, 15); // ✅ Faster: 15ms per character
     }
 
     async function sendMessage() {
@@ -175,7 +184,6 @@
       loading = true;
       sendBtn.innerHTML = '<div class="spinner"></div>';
 
-      // ✅ Show "Generating..." placeholder before bot reply
       const generatingMsg = addMessage("Generating...", "bot");
 
       try {
@@ -186,7 +194,6 @@
         });
         const data = await res.json();
 
-        // Replace "Generating..." with the real reply
         chat.removeChild(generatingMsg);
         reply = data.reply;
         currentBotMsg = addMessage("", 'bot');
@@ -194,7 +201,6 @@
         startStreaming();
       } catch(e) {
         chat.removeChild(generatingMsg);
-        // ✅ Error message in red (or backend HTML span will render)
         addMessage("<span style='color:red;'>⚠️ Connection lost — Please check your internet connection.</span>", 'bot');
       } finally {
         loading = false;
@@ -205,6 +211,7 @@
       if(streaming) {
         clearInterval(streamInterval);
         streaming = false;
+        currentBotMsg.innerHTML = reply; // ✅ instantly finish if user clicks
         sendBtn.textContent = "🔊";
       } else {
         sendMessage();
@@ -225,4 +232,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
