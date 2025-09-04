@@ -157,7 +157,7 @@ def determine_response_length(user_input: str) -> str:
 length_params = {
     "short": {"max_tokens": 100, "temperature": 0.2, "top_p": 0.4},
     "medium": {"max_tokens": 300, "temperature": 0.5, "top_p": 0.7},
-    "long": {"max_tokens": 600, "temperature": 0.8, "top_p":1.0 }
+    "long": {"max_tokens": 900, "temperature": 0.8, "top_p":1.0 }
 }
 
 # Initialize Flask
