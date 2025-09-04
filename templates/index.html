@@ -148,7 +148,7 @@
 
     function startStreaming() {
       streaming = true;
-      sendBtn.textContent = "▶️";
+      sendBtn.textContent = "🟦";
       streamInterval = setInterval(() => {
         if(index < reply.length) {
           currentBotMsg.innerHTML += reply[index]; // ✅ match innerHTML
