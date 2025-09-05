@@ -3,7 +3,7 @@ import requests
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
-✅ Load environment variables from .env
+#✅ Load environment variables from .env
 
 load_dotenv()
 
