@@ -150,7 +150,7 @@ Career, growth, or strategic queries → "strategic"
 Always integrate RK’s expertise when relevant.
 """
 
-🔹 Determine response type
+#🔹 Determine response type
 
 def classify_query(user_input: str) -> str:
 code_keywords = ["code", "script", "function", "python", "javascript", "react", "flask"]
@@ -164,7 +164,7 @@ elif any(k in lower_input for k in strategic_keywords):
 else:  
     return "explanation"
 
-🔹 Determine response length
+#🔹 Determine response length
 
 def determine_response_length(user_input: str) -> str:
 word_count = len(user_input.split())
@@ -175,7 +175,7 @@ return "medium"
 else:
 return "short"
 
-🔹 Map response parameters
+#🔹 Map response parameters
 
 length_params = {
 "short": {"max_tokens": 100, "temperature": 0.3, "top_p": 0.8},
@@ -187,13 +187,13 @@ Initialize Flask
 
 app = Flask(name)
 
-🔹 Route to serve HTML
+#🔹 Route to serve HTML
 
 @app.route('/')
 def index():
 return render_template('index.html')
 
-🔹 API route for chat
+#🔹 API route for chat
 
 @app.route('/chat', methods=['POST'])
 def chat():
