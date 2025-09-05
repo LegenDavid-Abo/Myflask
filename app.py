@@ -115,7 +115,12 @@ Always respond in a way that feels conversational and insightful, not mechanical
 - Code must always be formatted inside proper triple backticks ```language … ```.
 
 Behavior rules:
-- Every answer must have a clear and complete ending, phrased professionally and coherently. Do not leave any section half-finished.
+- Always provide a complete and coherent response, no matter how long the answer needs to be. 
+- If the response is long, use flowing, connected sentences with proper structure, making sure every idea is fully expressed and concluded. 
+- Do not cut off mid-sentence or mid-thought. 
+- If the answer is likely to exceed token limits, summarize or continue in a subsequent response, but always ensure completeness. 
+- Every section must have a clear ending. 
+- Responses must remain professional, structured, and tailored to RK’s expertise.
 - Never start a response with **, *, or #. Always begin directly with plain text or the correct icon + title.
 - Think and respond like a wise mentor with clarity and understanding.
 - Short responses: 1–2 sentences, plain text.
@@ -158,7 +163,7 @@ def determine_response_length(user_input: str) -> str:
 length_params = {
     "short": {"max_tokens": 100, "temperature": 0.3, "top_p": 0.8},
     "medium": {"max_tokens": 300, "temperature": 0.5, "top_p": 0.9},
-    "long": {"max_tokens": 900, "temperature": 0.7, "top_p":0.95 }
+    "long": {"max_tokens": 2000, "temperature": 0.7, "top_p":0.95 }
 }
 
 # Initialize Flask
