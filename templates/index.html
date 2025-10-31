@@ -142,7 +142,6 @@
             <li><b><a href="https://legendavid-portfolio-ai.vercel.app" target="_blank">Portfolio AI</a></b> – Smart AI-driven portfolio that interacts with users in real time.</li>
             <li><b><a href="https://legendavid-dashboard.vercel.app" target="_blank">Smart Dashboard</a></b> – A sleek, responsive admin panel built with modern web frameworks.</li>
           </ul>
-          <p>Each project showcases innovation, scalability, and technical precision across frontend and backend stacks.</p>
         </div>
       `,
       "Resume": `
@@ -154,9 +153,8 @@
           <p><b>Experience:</b> Built and deployed full-scale applications using modular architecture and AI-enhanced UX flows.</p>
           <p><b>Contact:</b> See contact page below.</p>
           <div style="margin-top:15px;">
-            <a href="assets/Olayemi_David_OnePage_Colorful_CV (2).pdf" download style="display:inline-block;padding:10px 15px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-weight:bold;">⬇️ Download Resume (PDF)</a>
+            <a href="assets/Olayemi_David.pdf" download style="display:inline-block;padding:10px 15px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-weight:bold;">⬇️ Download Resume (PDF)</a>
           </div>
-          <p style="font-size:0.9rem;color:gray;margin-top:10px;">Ensure your resume file is placed inside: <b>/public/assets/Olayemi_David_OnePage_Colorful_CV (2).pdf</b></p>
         </div>
       `,
       "Contact": `
@@ -181,7 +179,6 @@
       `
     };
 
-    // Attach functionality
     menuLinks.forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
@@ -234,7 +231,6 @@
           streaming = false;
           sendBtn.textContent = "🔊";
         }
-
         if (Date.now() - startTime > 10000) {
           clearInterval(streamInterval);
           currentBotMsg.innerHTML = reply;
