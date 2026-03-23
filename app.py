@@ -8,6 +8,8 @@ load_dotenv()
 
 API_URL = "https://router.huggingface.co/v1/chat/completions"
 API_KEY = os.getenv("HF_API_KEY") # ✅ Load from .env, not hardcoded
+
+
 headers = {
     "Authorization": f"Bearer {API_KEY}",
     "Content-Type": "application/json"
