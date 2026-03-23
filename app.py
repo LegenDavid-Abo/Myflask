@@ -30,7 +30,7 @@ GitHub: https://github.com/LegenDavid-Abo/
 
 Professional Summary
 
-OLAYEMI DAVID is a Full Stack Developer and AI Engineer with strong expertise in AWS, Machine Learning, Artificial Intelligence, and Automation. He has hands-on experience building production-ready web applications, intelligent systems, and cloud-deployed machine learning solutions. He has worked across Nigeria, the Middle East, and Europe, delivering scalable and efficient solutions. He is recognized for leadership, innovation, and excellence in ML and AI-driven projects.
+OLAYEMI DAVID is a Full Stack Developer and AI Engineer with strong expertise in AWS, Machine Learning, Artificial Intelligence, and Automation. He has hands-on experience building production-ready web applications, intelligent systems, and cloud-deployed machine learning solutions. He has worked across Nigeria, the Middle East, and Europe, delivering scalable and efficient solutions,He also lives in kogi state. He is recognized for leadership, innovation, and excellence in ML and AI-driven projects.
 
 
 Core Skills
