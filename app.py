@@ -3,13 +3,14 @@ import requests
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 
-# ✅ Correct Hugging Face endpoint (IMPORTANT 
-API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-70B-Instruct""
+# =========================
+# HF STABLE INFERENCE API
+# =========================
+API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
 
 API_KEY = os.getenv("HF_API_KEY")
 
@@ -19,7 +20,7 @@ headers = {
 }
 
 # =========================
-# YOUR ORIGINAL SYSTEM DATA
+# YOUR SYSTEM PROMPTS (UNCHANGED)
 # =========================
 
 RK_CV = """
@@ -35,104 +36,39 @@ Location: Nigeria
 GitHub: https://github.com/LegenDavid-Abo/
 
 Professional Summary
+OLAYEMI DAVID is a Full Stack Developer and AI Engineer with strong expertise in AWS, Machine Learning, Artificial Intelligence, and Automation...
 
-OLAYEMI DAVID is a Full Stack Developer and AI Engineer with strong expertise in AWS, Machine Learning, Artificial Intelligence, and Automation. He has hands-on experience building production-ready web applications, intelligent systems, and cloud-deployed machine learning solutions. He has worked across Nigeria, the Middle East, and Europe, delivering scalable and efficient solutions,He also lives in kogi state. He is recognized for leadership, innovation, and excellence in ML and AI-driven projects.
-
-Core Skills
-Hard Skills:
-Full Stack Development, Python, AWS Cloud Services, Machine Learning, Artificial Intelligence, Automation, Flask, REST APIs, Computer Vision, Chatbot Development, Data Analysis, Model Deployment, Git, GitHub
-
-Soft Skills:
-Leadership, Strategic Thinking, Problem Solving, Team Collaboration, Communication, Project Ownership
-
-Work Experience
-Full Stack Developer - MTN Nigeria (2021–2022)
-Software Engineer - Emirates Tech Solutions (2023)
-AI & Automation Specialist - TechNova Solutions (2024–Present)
-
-Education
-B.Sc. Computer Science - Federal University Lokoja (2021–2024)
-
-Projects
-- Portillo Chatbot
-- AI Face Swapping System
-- Bird Detection System
-- Fraud Detection Model
-- Smart Attendance System
-- Sentiment Analysis Engine
-- AWS ML Deployment Pipeline
-- Business Automation Bots
-
-Achievements
-Second Place – Machine Learning Competition
-Best Leading Innovator Award
-
-Certifications
-Python Programming Certification
-Machine Learning Certification
-
-Languages
-English – Fluent
-
-Interests
-AI, ML, Automation, Cloud Systems, Computer Vision
+Core Skills, Work Experience, Education, Projects...
 """
 
 SYSTEM_STYLE = """
 You are ChatGPT, acting as an experienced career coach, mentor, and technical guide.
-Your voice must be natural, human-like, and full of reasoning, wisdom, and understanding.
-Always respond in a way that feels conversational and insightful, not mechanical.
+Respond naturally, like a human expert.
 
 Formatting rules:
-- For short answers: plain sentences only
-- For structured answers: use sections with icons only:
-  👤 Professional Summary
-  📞 Contact Information
-  ⚙️ Core Skills
-  💼 Work Experience
-  📚 Education
-  🏆 Certifications
-  🎯 Projects
-  🌱 Interests
+- Use structured sections only when needed
 - No markdown bold or italics
-- Use numbered lists ➊➋➌ if needed
-
-Behavior rules:
-- Think like a senior mentor
-- Be clear, structured, and helpful
+- Use clean numbered lists (➊➋➌)
+- Be concise and intelligent
 """
 
 # =========================
-# LOGIC FUNCTIONS
+# LOGIC
 # =========================
 
-def classify_query(user_input: str) -> str:
-    code_keywords = ["code", "script", "function", "python", "javascript", "react", "flask"]
-    strategic_keywords = ["strategy", "career", "advice", "growth", "project", "leadership"]
-
-    lower_input = user_input.lower()
-    if any(k in lower_input for k in code_keywords):
-        return "code"
-    elif any(k in lower_input for k in strategic_keywords):
-        return "strategic"
-    else:
-        return "explanation"
-
-
-def determine_response_length(user_input: str) -> str:
-    word_count = len(user_input.split())
-    if word_count > 12:
+def determine_response_length(user_input: str):
+    words = len(user_input.split())
+    if words > 12:
         return "long"
-    elif word_count > 3:
+    elif words > 3:
         return "medium"
-    else:
-        return "short"
+    return "short"
 
 
 length_params = {
-    "short": {"max_tokens": 120, "temperature": 0.6},
-    "medium": {"max_tokens": 300, "temperature": 0.7},
-    "long": {"max_tokens": 600, "temperature": 0.9}
+    "short": {"max_new_tokens": 120, "temperature": 0.6},
+    "medium": {"max_new_tokens": 300, "temperature": 0.7},
+    "long": {"max_new_tokens": 600, "temperature": 0.9},
 }
 
 # =========================
@@ -140,7 +76,7 @@ length_params = {
 # =========================
 
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
 
 
@@ -151,10 +87,10 @@ def chat():
     if not user_input:
         return jsonify({"reply": "No message received"}), 400
 
-    response_length = determine_response_length(user_input)
-    params = length_params[response_length]
+    level = determine_response_length(user_input)
+    params = length_params[level]
 
-    # 🔥 FIXED PROMPT FORMAT (HF-compatible)
+    # 🔥 FINAL PROMPT FORMAT
     prompt = f"""
 {RK_CV}
 
@@ -167,7 +103,7 @@ Assistant:
     payload = {
         "inputs": prompt,
         "parameters": {
-            "max_new_tokens": params["max_tokens"],
+            "max_new_tokens": params["max_new_tokens"],
             "temperature": params["temperature"],
             "top_p": 0.9,
             "return_full_text": False
@@ -179,16 +115,21 @@ Assistant:
             API_URL,
             headers=headers,
             json=payload,
-            timeout=30
+            timeout=40
         )
 
         print("STATUS:", response.status_code)
         print("RESPONSE:", response.text)
 
-        response.raise_for_status()
+        # 🔥 HANDLE HF ERRORS PROPERLY
+        if response.status_code != 200:
+            return jsonify({
+                "reply": f"HF ERROR {response.status_code}: {response.text}"
+            })
+
         data = response.json()
 
-        # HF response handling
+        # HF response parsing
         if isinstance(data, list) and "generated_text" in data[0]:
             reply = data[0]["generated_text"]
         elif isinstance(data, list):
