@@ -242,9 +242,8 @@ def chat():
         response.raise_for_status()
         data = response.json()
         return jsonify({"reply": data["choices"][0]["message"]["content"]})
-    except Exception:
-        return jsonify({"reply": "❌🌐 Connection lost — Please check your internet connection and try again."})
-
+    except Exception as e:
+    return jsonify({"reply": f"❌ Error: {str(e)}"})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
