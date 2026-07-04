@@ -9,7 +9,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # ✅ Correct Hugging Face endpoint (IMPORTANT FIX)
-API_URL = "https://router.huggingface.co/v1/chat/completions"
+API_URL ="API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-70B-Instruct""
 
 API_KEY = os.getenv("HF_API_KEY")
 
