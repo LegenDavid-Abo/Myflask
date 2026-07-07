@@ -9,43 +9,50 @@
   <style>
     :root {
       --bg-color: #ffffff;
-      --text-color: #000000;
-      --input-bg: #f1f1f1;
-      --bubble-bg: #e0e0e0;
+      --text-color: #1a1a1a;
+      --input-bg: #f5f5f5;
+      --bubble-bg: #e8e8e8;
       --btn-color: #ffffff;
       --sidebar-width: 270px;
       --thinking-color: #888888;
+      --accent-color: #007bff;
+      --code-bg: #f0f0f0;
+      --code-text: #333;
     }
     body.dark {
       --bg-color: #0d0d0d;
-      --text-color: #f5f5f5;
+      --text-color: #f0f0f0;
       --input-bg: #1a1a1a;
-      --bubble-bg: #333333;
+      --bubble-bg: #2a2a2a;
       --btn-color: #ffffff;
       --thinking-color: #aaaaaa;
+      --accent-color: #4da6ff;
+      --code-bg: #1e1e1e;
+      --code-text: #d4d4d4;
     }
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       display: flex;
       flex-direction: column;
       height: 100vh;
       overflow-x: hidden;
+      line-height: 1.6;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
+      padding: 12px 20px;
       background-color: var(--bg-color);
       border-bottom: 1px solid #ccc;
       position: sticky;
       top: 0;
       z-index: 20;
     }
-    header h1 { margin: 0; font-size: 1.2rem; }
+    header h1 { margin: 0; font-size: 1.2rem; font-weight: 600; }
     .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
@@ -56,7 +63,7 @@
       position: absolute; content: ""; height: 20px; width: 20px;
       left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
     }
-    input:checked + .slider { background-color: #007bff; }
+    input:checked + .slider { background-color: var(--accent-color); }
     input:checked + .slider:before { transform: translateX(24px); }
     .menu-btn { font-size: 1.6rem; background: none; border: none; cursor: pointer; margin-right: 15px; color: var(--text-color); }
     .dropdown {
@@ -72,21 +79,97 @@
       font-size: 1rem; font-weight: bold; border-radius: 6px; color: var(--text-color);
       transition: background 0.3s, color 0.3s;
     }
-    .dropdown-content a:hover { background: var(--input-bg); color: #007bff; }
+    .dropdown-content a:hover { background: var(--input-bg); color: var(--accent-color); }
     .dropdown-footer { padding: 15px; text-align: center; font-size: 0.9rem; font-weight: bold; border-top: 1px solid #ccc; }
-    .chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+    .chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; width: 100%; }
     .placeholder { text-align: center; color: gray; margin-top: 20px; }
-    .message { margin: 10px 0; word-wrap: break-word; white-space: pre-wrap; }
-    .user { background: var(--bubble-bg); padding: 10px; border-radius: 10px; align-self: flex-end; display: inline-block; max-width: 40%; text-align: right; }
-    .bot { align-self: stretch; padding: 0; text-align: left; display: block; white-space: pre-wrap; word-wrap: break-word; }
     
-    /* THINKING ANIMATION — like Kimi */
+    /* Message bubbles */
+    .message { margin: 8px 0; word-wrap: break-word; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .user { 
+      background: var(--accent-color); 
+      color: white;
+      padding: 12px 16px; 
+      border-radius: 18px 18px 4px 18px; 
+      align-self: flex-end; 
+      max-width: 75%; 
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    .bot { 
+      align-self: flex-start; 
+      padding: 0; 
+      text-align: left; 
+      max-width: 85%;
+      font-size: 0.95rem;
+    }
+    .bot-content {
+      padding: 12px 16px;
+      background: var(--bubble-bg);
+      border-radius: 18px 18px 18px 4px;
+    }
+    
+    /* Formatted text inside bot messages */
+    .bot-content p { margin: 0 0 10px 0; }
+    .bot-content p:last-child { margin-bottom: 0; }
+    .bot-content strong, .bot-content b { font-weight: 700; color: var(--text-color); }
+    .bot-content em, .bot-content i { font-style: italic; }
+    .bot-content ul, .bot-content ol { margin: 8px 0; padding-left: 20px; }
+    .bot-content li { margin: 4px 0; }
+    .bot-content code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+    .bot-content pre {
+      background: var(--code-bg);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .bot-content pre code {
+      background: none;
+      padding: 0;
+    }
+    .bot-content blockquote {
+      border-left: 3px solid var(--accent-color);
+      margin: 10px 0;
+      padding-left: 12px;
+      color: var(--thinking-color);
+    }
+    .bot-content h1, .bot-content h2, .bot-content h3, .bot-content h4 {
+      margin: 12px 0 8px 0;
+      font-weight: 600;
+    }
+    .bot-content hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 12px 0;
+    }
+    .bot-content a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+    .bot-content a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Thinking animation */
     .thinking {
       color: var(--thinking-color);
       font-style: italic;
       display: flex;
       align-items: center;
       gap: 8px;
+      padding: 12px 16px;
+      background: var(--bubble-bg);
+      border-radius: 18px 18px 18px 4px;
     }
     .thinking-dots {
       display: flex;
@@ -106,10 +189,60 @@
       40% { transform: scale(1); }
     }
     
-    .chatbox { display: flex; padding: 10px; border-top: 1px solid #ccc; background-color: var(--bg-color); position: sticky; bottom: 0; }
-    .chatbox textarea { flex: 1; border: none; outline: none; font-size: 1rem; padding: 10px; resize: none; min-height: 40px; max-height: 150px; overflow-y: auto; background: var(--input-bg); color: var(--text-color); border-radius: 8px; }
-    .chatbox button { background: #007bff; border: none; color: var(--btn-color); padding: 0 15px; margin-left: 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-    .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-top: 3px solid white; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+    .chatbox { 
+      display: flex; 
+      padding: 12px 20px; 
+      border-top: 1px solid #ccc; 
+      background-color: var(--bg-color); 
+      position: sticky; 
+      bottom: 0;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .chatbox textarea { 
+      flex: 1; 
+      border: none; 
+      outline: none; 
+      font-size: 1rem; 
+      padding: 10px 14px; 
+      resize: none; 
+      min-height: 44px; 
+      max-height: 150px; 
+      overflow-y: auto; 
+      background: var(--input-bg); 
+      color: var(--text-color); 
+      border-radius: 22px;
+      font-family: inherit;
+    }
+    .chatbox button { 
+      background: var(--accent-color); 
+      border: none; 
+      color: var(--btn-color); 
+      padding: 0; 
+      margin-left: 10px; 
+      border-radius: 50%; 
+      cursor: pointer; 
+      font-size: 1.2rem; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      width: 44px; 
+      height: 44px; 
+      flex-shrink: 0;
+    }
+    .chatbox button:hover {
+      opacity: 0.9;
+    }
+    .spinner { 
+      border: 3px solid rgba(255, 255, 255, 0.3); 
+      border-top: 3px solid white; 
+      border-radius: 50%; 
+      width: 18px; 
+      height: 18px; 
+      animation: spin 1s linear infinite; 
+    }
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
@@ -143,10 +276,74 @@
 
   <div class="chatbox">
     <textarea id="userInput" rows="1" placeholder="Type your question..."></textarea>
-    <button id="sendBtn">🔊</button>
+    <button id="sendBtn">➤</button>
   </div>
 
   <script>
+    // ==========================================
+    // MARKDOWN TO HTML CONVERTER
+    // Converts **bold**, *italic*, `code`, lists, etc. to real HTML
+    // ==========================================
+    function markdownToHTML(text) {
+      if (!text) return '';
+      
+      let html = text
+        // Escape HTML first
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      // Code blocks (``` ... ```)
+      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+      
+      // Inline code (`...`)
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      
+      // Bold (**...**)
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // Italic (*...* or _..._)
+      html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+      
+      // Strikethrough (~~...~~)
+      html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
+      
+      // Headers
+      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+      
+      // Blockquote
+      html = html.replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>');
+      
+      // Horizontal rule
+      html = html.replace(/^---$/gim, '<hr>');
+      
+      // Unordered lists
+      html = html.replace(/^[\*\-] (.*$)/gim, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+      html = html.replace(/<\/ul>\s*<ul>/g, '');
+      
+      // Ordered lists
+      html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+      
+      // Links [text](url)
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+      
+      // Line breaks to paragraphs
+      const paragraphs = html.split(/\n\s*\n/).filter(p => p.trim());
+      html = paragraphs.map(p => {
+        p = p.trim();
+        if (p.startsWith('<') && (p.endsWith('>') || p.includes('</'))) {
+          return p;
+        }
+        return '<p>' + p.replace(/\n/g, '<br>') + '</p>';
+      }).join('');
+      
+      return html;
+    }
+
     const menuLinks = document.querySelectorAll('.dropdown-content a');
     const chatContainer = document.getElementById('chat');
 
@@ -154,58 +351,68 @@
       "New Chat": `<div class="placeholder">Starting a new chat... Ask me anything about Olayemi.</div>`,
       "Dashboard": `
         <div class="message bot">
-          <h3>📊 Dashboard Overview</h3>
-          <p>Welcome to your AI-powered dashboard. Here's what I can display:</p>
-          <ul>
-            <li><b>Project Progress</b>: Track ongoing builds and milestones.</li>
-            <li><b>Performance</b>: Real-time insights into your portfolio growth.</li>
-            <li><b>AI Assistant</b>: Manage chats, generate reports, and handle client requests.</li>
-          </ul>
+          <div class="bot-content">
+            <h3>📊 Dashboard Overview</h3>
+            <p>Welcome to your AI-powered dashboard. Here's what I can display:</p>
+            <ul>
+              <li><strong>Project Progress</strong>: Track ongoing builds and milestones.</li>
+              <li><strong>Performance</strong>: Real-time insights into your portfolio growth.</li>
+              <li><strong>AI Assistant</strong>: Manage chats, generate reports, and handle client requests.</li>
+            </ul>
+          </div>
         </div>
       `,
       "Projects": `
         <div class="message bot">
-          <h3>💼 Featured Projects</h3>
-          <ul>
-            <li><b><a href="https://legendavid-cbt-portal-demo.vercel.app" target="_blank">CBT Portal</a></b> – Full online testing system with result automation and admin dashboard.</li>
-            <li><b><a href="https://legendavid-portfolio-ai.vercel.app" target="_blank">Portfolio AI</a></b> – AI-driven interactive portfolio.</li>
-            <li><b><a href="https://legendavid-dashboard.vercel.app" target="_blank">Smart Dashboard</a></b> – Modern responsive admin panel.</li>
-          </ul>
+          <div class="bot-content">
+            <h3>💼 Featured Projects</h3>
+            <ul>
+              <li><strong><a href="https://legendavid-cbt-portal-demo.vercel.app" target="_blank">CBT Portal</a></strong> – Full online testing system with result automation and admin dashboard.</li>
+              <li><strong><a href="https://legendavid-portfolio-ai.vercel.app" target="_blank">Portfolio AI</a></strong> – AI-driven interactive portfolio.</li>
+              <li><strong><a href="https://legendavid-dashboard.vercel.app" target="_blank">Smart Dashboard</a></strong> – Modern responsive admin panel.</li>
+            </ul>
+          </div>
         </div>
       `,
       "Resume": `
         <div class="message bot">
-          <h3>📄 Resume</h3>
-          <p><b>Name:</b> Olayemi David</p>
-          <p><b>Role:</b> Full Stack Developer | AI Integrator | Innovator</p>
-          <p><b>Skills:</b> PHP, MySQL, JavaScript, React, Node.js, API Integration, Cloud Hosting</p>
-          <p><b>Experience:</b> Built and deployed full-scale applications using modular architecture and AI-enhanced UX flows.</p>
-          <p><b>Contact:</b> See contact page below.</p>
-          <div style="margin-top:15px; text-align:center;">
-            <a href="static/cv/Copy-David_Olayemi_CV 1.pdf" 
-               download 
-               style="display:inline-block; padding:12px 20px; background:#007bff; color:white; border-radius:6px; text-decoration:none; font-weight:bold;">
-              ⬇️ Download Resume (PDF)
-            </a>
+          <div class="bot-content">
+            <h3>📄 Resume</h3>
+            <p><strong>Name:</strong> Olayemi David</p>
+            <p><strong>Role:</strong> Full Stack Developer | AI Integrator | Innovator</p>
+            <p><strong>Skills:</strong> PHP, MySQL, JavaScript, React, Node.js, API Integration, Cloud Hosting</p>
+            <p><strong>Experience:</strong> Built and deployed full-scale applications using modular architecture and AI-enhanced UX flows.</p>
+            <p><strong>Contact:</strong> See contact page below.</p>
+            <div style="margin-top:15px; text-align:center;">
+              <a href="static/cv/Copy-David_Olayemi_CV 1.pdf" 
+                 download 
+                 style="display:inline-block; padding:12px 20px; background:var(--accent-color); color:white; border-radius:6px; text-decoration:none; font-weight:bold;">
+                ⬇️ Download Resume (PDF)
+              </a>
+            </div>
           </div>
         </div>
       `,
       "Contact": `
         <div class="message bot">
-          <h3>📬 Contact Information</h3>
-          <p><b>Name:</b> Olayemi David</p>
-          <p><b>Email:</b> <a href="mailto:olabolade999@gmail.com">olabolade999@gmail.com</a></p>
-          <p><b>Phone:</b> <a href="tel:+2349022996320">+234 902 299 6320</a></p>
-          <p><b>GitHub:</b> <a href="https://github.com/LegenDavid-Abo" target="_blank">github.com/LegenDavid-Abo</a></p>
-          <p><b>LinkedIn:</b> <a href="https://linkedin.com/in/olayemi-david-3b1132340" target="_blank">linkedin.com/in/olayemi-david-3b1132340</a></p>
+          <div class="bot-content">
+            <h3>📬 Contact Information</h3>
+            <p><strong>Name:</strong> Olayemi David</p>
+            <p><strong>Email:</strong> <a href="mailto:olabolade999@gmail.com">olabolade999@gmail.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+2349022996320">+234 902 299 6320</a></p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/LegenDavid-Abo" target="_blank">github.com/LegenDavid-Abo</a></p>
+            <p><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/olayemi-david-3b1132340" target="_blank">linkedin.com/in/olayemi-david-3b1132340</a></p>
+          </div>
         </div>
       `,
       "About": `
         <div class="message bot">
-          <h3>👤 About Olayemi</h3>
-          <p>Olayemi David is a visionary developer merging design precision with AI-driven solutions.  
-          Passionate about human-centered technology, automation, and clean architecture,  
-          he builds systems that are not just functional but intelligent.</p>
+          <div class="bot-content">
+            <h3>👤 About Olayemi</h3>
+            <p>Olayemi David is a visionary developer merging design precision with AI-driven solutions.  
+            Passionate about human-centered technology, automation, and clean architecture,  
+            he builds systems that are not just functional but intelligent.</p>
+          </div>
         </div>
       `
     };
@@ -236,11 +443,20 @@
     function addMessage(text, sender, isHTML = false) {
       const msg = document.createElement('div');
       msg.classList.add('message', sender);
-      if (isHTML) {
-        msg.innerHTML = text;
+      
+      if (sender === 'bot') {
+        const contentDiv = document.createElement('div');
+        contentDiv.classList.add('bot-content');
+        if (isHTML) {
+          contentDiv.innerHTML = text;
+        } else {
+          contentDiv.textContent = text;
+        }
+        msg.appendChild(contentDiv);
       } else {
         msg.textContent = text;
       }
+      
       chat.appendChild(msg);
       chat.scrollTop = chat.scrollHeight;
       return msg;
@@ -278,13 +494,13 @@
       // Add user message
       addMessage(text, 'user');
       userInput.value = "";
-      userInput.style.height = "40px";
+      userInput.style.height = "44px";
       sendBtn.innerHTML = '<div class="spinner"></div>';
 
       loading = true;
 
       // Show "Thinking..." animation
-      const thinkingEl = showThinking();
+      showThinking();
 
       try {
         const res = await fetch('/chat', {
@@ -297,15 +513,16 @@
         // Remove thinking indicator
         removeThinking();
 
-        // Show complete response at once (like Kimi does after thinking)
-        addMessage(data.reply, 'bot', true);
+        // Convert Markdown to HTML and display complete response
+        const formattedHTML = markdownToHTML(data.reply);
+        addMessage(formattedHTML, 'bot', true);
 
       } catch(e) {
         removeThinking();
         addMessage("⚠️ Connection lost — Please check your internet connection.", 'bot', true);
       } finally {
         loading = false;
-        sendBtn.textContent = "🔊";
+        sendBtn.textContent = "➤";
       }
     }
 
@@ -321,7 +538,7 @@
     userInput.addEventListener('input', () => {
       userInput.style.height = "auto";
       userInput.style.height = (userInput.scrollHeight) + "px";
-      sendBtn.textContent = userInput.value.trim() === "" ? "🔊" : "➤";
+      sendBtn.textContent = userInput.value.trim() === "" ? "➤" : "➤";
     });
   </script>
 </body>
