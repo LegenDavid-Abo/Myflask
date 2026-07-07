@@ -79,7 +79,8 @@ def chat():
         return jsonify({"reply": cached})
 
     payload = {
-        "model": "llama-3.1-70b-versatile",
+        # ✅ UPDATED MODEL — llama-3.1-70b-versatile is decommissioned
+        "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": OLAYEMI_SYSTEM},
             {"role": "user", "content": user_input}
