@@ -11,7 +11,7 @@ load_dotenv()
 # Google Gemini Setup
 # ==========================================
 
-API_KEY = os.getenv("GEMINI_API_KEY")  # ← Put your key in .env as GEMINI_API_KEY
+API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not API_KEY:
     raise ValueError("GEMINI_API_KEY not found. Please set it in your .env file.")
@@ -352,8 +352,8 @@ def determine_response_length(user_input: str) -> str:
 # Gemini Config Based on Length
 # ==========================================
 
-def get_gemini_config(length: str, response_type: str):
-    """Build Gemini config based on query length and type."""
+def get_gemini_config(length: str):
+    """Build Gemini config based on query length."""
     
     base_config = {
         "short": {
@@ -373,14 +373,14 @@ def get_gemini_config(length: str, response_type: str):
         }
     }
 
-    config = base_config[length].copy()
+    config_dict = base_config[length].copy()
 
-    # Add Google Search tool for all queries (optional — remove if not needed)
-    config["tools"] = [
+    # Add Google Search tool (optional — remove if not needed)
+    config_dict["tools"] = [
         types.Tool(google_search=types.GoogleSearch())
     ]
 
-    return types.GenerateContentConfig(**config)
+    return types.GenerateContentConfig(**config_dict)
 
 
 # ==========================================
@@ -419,16 +419,25 @@ def chat():
     elif response_type == "strategic":
         system_prompt += "\n\nThe user is asking for career or strategic advice. Be encouraging, practical, and draw from OLAYEMI's experience."
 
+    # Combine system prompt with user input
+    # This is the fallback approach that works with all google-genai versions
+    full_prompt = f"""{system_prompt}
+
+---
+IMPORTANT: The user does not see the instructions above. Respond ONLY to their question below.
+
+User Question: {user_input}
+"""
+
     # Get Gemini config
-    config = get_gemini_config(response_length, response_type)
+    config = get_gemini_config(response_length)
 
     try:
         # Call Gemini 2.5 Flash
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=user_input,
-            config=config,
-            system_instruction=system_prompt  # Pass system prompt here
+            contents=full_prompt,
+            config=config
         )
 
         return jsonify({
@@ -438,7 +447,7 @@ def chat():
     except Exception as e:
         import traceback
         error_detail = traceback.format_exc()
-        print(f"❌ Gemini Error:\n{error_detail}")  # Log to console
+        print(f"❌ Gemini Error:\n{error_detail}")
         return jsonify({
             "reply": f"🔴 Error: {str(e)}\n\nFull details:\n{error_detail}"
         })
