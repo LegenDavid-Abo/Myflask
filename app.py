@@ -302,8 +302,10 @@ Classification rules (internal only):
 
 - Career, growth, or strategic queries → "strategic"
 
-Always integrate RK’s expertise when relevant.
+Always integrate RK's expertise when relevant.
 """
+
+
 # 🔹 Determine response type
 def classify_query(user_input: str) -> str:
     code_keywords = [
@@ -457,15 +459,6 @@ def chat():
 # ==========================================
 
 if __name__ == "__main__":
-
-    port = int(os.environ.get("PORT", 5000))
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=False
-    )
-    if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 5000))
 
