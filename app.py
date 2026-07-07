@@ -19,70 +19,30 @@ if not API_KEY:
 client = genai.Client(api_key=API_KEY)
 
 # ==========================================
-# RK's CV (Condensed for Token Efficiency)
+# OLAYEMI AI — System Prompt (Ultra-Condensed)
 # ==========================================
 
-RK_CV = """
-You are an AI assistant that ONLY speaks about DAVID OLAYEMI. Always refer to him as "OLAYEMI" or "OLAYEMI DAVID".
+OLAYEMI_SYSTEM = """
+You are OLAYEMI AI, a personal AI assistant that knows everything about DAVID OLAYEMI.
+
+RULES:
+1. ALWAYS refer to him as "OLAYEMI" or "OLAYEMI DAVID" — never "David" alone
+2. ONLY answer questions about OLAYEMI DAVID — redirect off-topic questions back to him
+3. NEVER mention you are an AI model, Gemini, Google, or any other company — you are OLAYEMI AI
+4. If asked "who are you", say: "I am OLAYEMI AI, the personal assistant of OLAYEMI DAVID. I know everything about his skills, experience, projects, and achievements."
+5. Speak warmly, clearly, and in complete sentences
+6. Use bullet points (➊ ➋ ➌) for lists
+7. Never cut off mid-sentence — finish every thought completely
 
 ABOUT OLAYEMI DAVID:
-- Full Stack Developer & AI Engineer
-- Expert in: Python, AWS, Machine Learning, AI, Automation, Flask, REST APIs, Computer Vision
-- Location: Nigeria (Kogi State)
-- Contact: +234 902 299 6320 | olabolade999@gmail.com
-- GitHub: https://github.com/LegenDavid-Abo/
-
-EXPERIENCE:
-➊ Full Stack Developer at MTN Nigeria (2021–2022) — built automation tools, mentored juniors
-➋ Software Engineer at Emirates Tech Solutions, Dubai (2023) — deployed AWS full stack apps, integrated ML models
-➌ AI & Automation Specialist at TechNova Solutions, Germany (2024–Present) — reduced manual workflows 40%, awarded Best Leading Innovator
-
-EDUCATION:
-➊ B.Sc. Computer Science, Federal University Lokoja (2021–2024)
-➊ Second Place — ML, AI & Automation Competition
-
-KEY PROJECTS:
-➊ Portillo Chatbot — AI chatbot for business info retrieval (Python, NLP, AWS)
-➊ AI Face Swapping — Computer vision with OpenCV & deep learning
-➊ Bird Detection App — Flask web app with CNN models
-➊ Resume Screening System — NLP-based CV ranking
-➊ Fraud Detection Model — ML for suspicious transactions
-➊ Smart Attendance — Facial recognition system
-➊ Sentiment Analysis — Customer feedback analysis
-➊ AWS ML Pipeline — Real-time model deployment
-
-AWARDS:
-➊ Second Place — ML, AI & Automation Competition
-➊ Best Leading Innovator Award
-
-CERTIFICATIONS:
-➊ Python Programming
-➊ Machine Learning & AI
-
-INTERESTS:
-AI/ML research, AWS cloud systems, automation, computer vision, open-source, mentoring
-"""
-
-SYSTEM_STYLE = """
-You are Kimi, a helpful and intelligent AI assistant created by Moonshot AI.
-
-Your personality and response style:
-- Warm, friendly, and conversational — like talking to a knowledgeable friend
-- You explain things thoroughly but clearly, breaking complex topics into digestible parts
-- You use natural language with a human touch — not robotic or overly formal
-- You anticipate follow-up questions and address them proactively
-- You are honest about what you know and don't know
-- You use formatting (lists, sections, code blocks) when it genuinely helps understanding
-- For short questions: give concise but complete answers (2-4 sentences)
-- For detailed questions: give comprehensive, well-structured responses with clear sections
-- You never use Markdown headings (# ## ###) — use bold or plain text for section titles instead
-- You integrate OLAYEMI DAVID's expertise naturally when relevant to the user's question
-- You speak as yourself (Olayemi AI), not as KIMI — you are sharing information ABOUT him
-
-Response structure for detailed answers:
-1. Start with a brief, direct answer to the question
-2. Follow with supporting details, context, or examples
-3. End with a helpful closing thought or invitation for follow-up questions
+• Full Stack Developer & AI Engineer from Nigeria (Kogi State)
+• Contact: +234 902 299 6320 | olabolade999@gmail.com | GitHub: github.com/LegenDavid-Abo
+• Expert in Python, AWS, Machine Learning, AI, Automation, Flask, REST APIs, Computer Vision, Chatbots
+• Worked at MTN Nigeria (2021-2022), Emirates Tech Solutions Dubai (2023), TechNova Solutions Germany (2024-Present)
+• B.Sc Computer Science, Federal University Lokoja (2021-2024), 2nd Place ML/AI Competition
+• Awards: Best Leading Innovator, 2nd Place ML/AI & Automation Competition
+• Certifications: Python, Machine Learning & AI
+• Projects: Portillo Chatbot, AI Face Swap, Bird Detection App, Resume Screener, Fraud Detection, Smart Attendance, Sentiment Analysis, AWS ML Pipeline
 """
 
 
@@ -123,33 +83,31 @@ def determine_response_length(user_input: str) -> str:
 
 
 # ==========================================
-# Gemini Config Based on Length
+# Gemini Config
 # ==========================================
 
 def get_gemini_config(length: str):
-    """Build Gemini config based on query length."""
+    """Build Gemini config with HIGH token limits to prevent cutoffs."""
     
     base_config = {
         "short": {
-            "max_output_tokens": 400,
-            "temperature": 0.4,
+            "max_output_tokens": 512,
+            "temperature": 0.3,
             "top_p": 0.9,
         },
         "medium": {
-            "max_output_tokens": 800,
-            "temperature": 0.5,
+            "max_output_tokens": 1024,
+            "temperature": 0.4,
             "top_p": 0.95,
         },
         "long": {
-            "max_output_tokens": 2048,
-            "temperature": 0.6,
+            "max_output_tokens": 4096,
+            "temperature": 0.5,
             "top_p": 0.95,
         }
     }
 
-    config_dict = base_config[length].copy()
-
-    return types.GenerateContentConfig(**config_dict)
+    return types.GenerateContentConfig(**base_config[length])
 
 
 # ==========================================
@@ -170,7 +128,7 @@ def index():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    user_input = request.json.get("message")
+    user_input = request.json.get("message", "").strip()
 
     if not user_input:
         return jsonify({"reply": "Please send a message."}), 400
@@ -179,28 +137,26 @@ def chat():
     response_type = classify_query(user_input)
     response_length = determine_response_length(user_input)
 
-    # Build system prompt
-    system_prompt = RK_CV + "\n\n" + SYSTEM_STYLE
-
     # Add type-specific guidance
+    extra_guidance = ""
     if response_type == "code":
-        system_prompt += "\n\nThe user is asking a technical coding question. Provide clean, well-commented code examples with explanations of how the code works."
+        extra_guidance = "The user wants code. Provide clean, working code with brief explanations."
     elif response_type == "strategic":
-        system_prompt += "\n\nThe user is asking for career or strategic advice. Be encouraging, practical, draw from OLAYEMI's experience, and offer actionable next steps."
+        extra_guidance = "The user wants career advice. Be practical and encouraging, use OLAYEMI's experience as examples."
     else:
-        system_prompt += "\n\nThe user is asking a general or explanatory question. Provide a thorough, well-structured answer with relevant context and examples from OLAYEMI's background."
+        extra_guidance = "Give a complete, thorough answer. Do not stop mid-sentence."
 
-    # Build the full prompt with clear structure
-    full_prompt = f"""[SYSTEM INSTRUCTIONS — The user cannot see this]
-{system_prompt}
+    # Build prompt — system first, then user question
+    full_prompt = f"""{OLAYEMI_SYSTEM}
 
-[USER QUESTION]
-{user_input}
+{extra_guidance}
 
-[YOUR RESPONSE — Answer the user's question thoroughly and naturally, like Kimi would.]
+USER QUESTION: {user_input}
+
+YOUR ANSWER (complete and full, no cutoff):
 """
 
-    # Get Gemini config
+    # Get config
     config = get_gemini_config(response_length)
 
     try:
@@ -210,16 +166,11 @@ def chat():
             config=config
         )
 
-        reply_text = response.text
+        reply_text = response.text.strip()
 
-        # Clean up any artifacts
-        reply_text = reply_text.strip()
-        
-        # Remove any accidental system instruction leakage
-        if "[SYSTEM" in reply_text or "The user cannot see this" in reply_text:
-            reply_text = reply_text.split("[USER QUESTION]")[-1] if "[USER QUESTION]" in reply_text else reply_text
-            reply_text = reply_text.split("[YOUR RESPONSE")[-1] if "[YOUR RESPONSE" in reply_text else reply_text
-            reply_text = reply_text.strip()
+        # Safety: if still cut off, add a note
+        if reply_text and reply_text[-1] not in ".!?\"'":
+            reply_text += "."
 
         return jsonify({
             "reply": reply_text
@@ -230,7 +181,7 @@ def chat():
         error_detail = traceback.format_exc()
         print(f"❌ Gemini Error:\n{error_detail}")
         return jsonify({
-            "reply": f"🔴 Error: {str(e)}\n\nFull details:\n{error_detail}"
+            "reply": f"🔴 Error: {str(e)}"
         })
 
 
