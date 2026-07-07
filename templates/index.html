@@ -14,6 +14,7 @@
       --bubble-bg: #e0e0e0;
       --btn-color: #ffffff;
       --sidebar-width: 270px;
+      --thinking-color: #888888;
     }
     body.dark {
       --bg-color: #0d0d0d;
@@ -21,6 +22,7 @@
       --input-bg: #1a1a1a;
       --bubble-bg: #333333;
       --btn-color: #ffffff;
+      --thinking-color: #aaaaaa;
     }
     body {
       margin: 0;
@@ -77,6 +79,33 @@
     .message { margin: 10px 0; word-wrap: break-word; white-space: pre-wrap; }
     .user { background: var(--bubble-bg); padding: 10px; border-radius: 10px; align-self: flex-end; display: inline-block; max-width: 40%; text-align: right; }
     .bot { align-self: stretch; padding: 0; text-align: left; display: block; white-space: pre-wrap; word-wrap: break-word; }
+    
+    /* THINKING ANIMATION — like Kimi */
+    .thinking {
+      color: var(--thinking-color);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .thinking-dots {
+      display: flex;
+      gap: 4px;
+    }
+    .thinking-dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--thinking-color);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    
     .chatbox { display: flex; padding: 10px; border-top: 1px solid #ccc; background-color: var(--bg-color); position: sticky; bottom: 0; }
     .chatbox textarea { flex: 1; border: none; outline: none; font-size: 1rem; padding: 10px; resize: none; min-height: 40px; max-height: 150px; overflow-y: auto; background: var(--input-bg); color: var(--text-color); border-radius: 8px; }
     .chatbox button { background: #007bff; border: none; color: var(--btn-color); padding: 0 15px; margin-left: 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
@@ -126,7 +155,7 @@
       "Dashboard": `
         <div class="message bot">
           <h3>📊 Dashboard Overview</h3>
-          <p>Welcome to your AI-powered dashboard. Here’s what I can display:</p>
+          <p>Welcome to your AI-powered dashboard. Here's what I can display:</p>
           <ul>
             <li><b>Project Progress</b>: Track ongoing builds and milestones.</li>
             <li><b>Performance</b>: Real-time insights into your portfolio growth.</li>
@@ -199,63 +228,63 @@
     const placeholder = document.getElementById('placeholder');
 
     let loading = false;
-    let streaming = false;
-    let streamInterval;
-    let reply = "";
-    let currentBotMsg;
-    let index = 0;
 
     menuBtn.addEventListener('click', () => { dropdown.classList.toggle('active'); });
     chat.addEventListener('click', () => { dropdown.classList.remove('active'); });
     themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark'); });
 
-    function addMessage(text, sender, color=null) {
+    function addMessage(text, sender, isHTML = false) {
       const msg = document.createElement('div');
       msg.classList.add('message', sender);
-      msg.innerHTML = text;
-      if(color) msg.style.color = color;
+      if (isHTML) {
+        msg.innerHTML = text;
+      } else {
+        msg.textContent = text;
+      }
       chat.appendChild(msg);
       chat.scrollTop = chat.scrollHeight;
       return msg;
     }
 
-    function startStreaming() {
-      streaming = true;
-      sendBtn.textContent = "🔲";
-      const startTime = Date.now();
-      streamInterval = setInterval(() => {
-        if (index < reply.length) {
-          currentBotMsg.innerHTML += reply[index];
-          chat.scrollTop = chat.scrollHeight;
-          index++;
-        } else {
-          clearInterval(streamInterval);
-          streaming = false;
-          sendBtn.textContent = "🔊";
-        }
-        if (Date.now() - startTime > 10000) {
-          clearInterval(streamInterval);
-          currentBotMsg.innerHTML = reply;
-          streaming = false;
-          sendBtn.textContent = "🔊";
-        }
-      }, 15);
+    // Create thinking animation element
+    function showThinking() {
+      const thinkingDiv = document.createElement('div');
+      thinkingDiv.classList.add('message', 'bot', 'thinking');
+      thinkingDiv.id = 'thinkingIndicator';
+      thinkingDiv.innerHTML = `
+        <span>Thinking</span>
+        <div class="thinking-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+      chat.appendChild(thinkingDiv);
+      chat.scrollTop = chat.scrollHeight;
+      return thinkingDiv;
+    }
+
+    function removeThinking() {
+      const thinking = document.getElementById('thinkingIndicator');
+      if (thinking) thinking.remove();
     }
 
     async function sendMessage() {
-      if(loading) return;
+      if (loading) return;
       const text = userInput.value.trim();
-      if(text === "") return;
-      if(placeholder) placeholder.remove();
+      if (text === "") return;
+      if (placeholder) placeholder.remove();
 
+      // Add user message
       addMessage(text, 'user');
       userInput.value = "";
       userInput.style.height = "40px";
-
-      loading = true;
       sendBtn.innerHTML = '<div class="spinner"></div>';
 
-      const generatingMsg = addMessage("Generating...", "bot");
+      loading = true;
+
+      // Show "Thinking..." animation
+      const thinkingEl = showThinking();
 
       try {
         const res = await fetch('/chat', {
@@ -265,29 +294,22 @@
         });
         const data = await res.json();
 
-        chat.removeChild(generatingMsg);
-        reply = data.reply;
-        currentBotMsg = addMessage("", 'bot');
-        index = 0;
-        startStreaming();
+        // Remove thinking indicator
+        removeThinking();
+
+        // Show complete response at once (like Kimi does after thinking)
+        addMessage(data.reply, 'bot', true);
+
       } catch(e) {
-        chat.removeChild(generatingMsg);
-        addMessage("<span style='color:red;'>⚠️ Connection lost — Please check your internet connection.</span>", 'bot');
+        removeThinking();
+        addMessage("⚠️ Connection lost — Please check your internet connection.", 'bot', true);
       } finally {
         loading = false;
+        sendBtn.textContent = "🔊";
       }
     }
 
-    sendBtn.addEventListener('click', () => {
-      if(streaming) {
-        clearInterval(streamInterval);
-        streaming = false;
-        currentBotMsg.innerHTML = reply;
-        sendBtn.textContent = "🔊";
-      } else {
-        sendMessage();
-      }
-    });
+    sendBtn.addEventListener('click', sendMessage);
 
     userInput.addEventListener('keydown', e => {
       if(e.key === "Enter" && !e.shiftKey) {
