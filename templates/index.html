@@ -84,7 +84,6 @@
     .chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; width: 100%; }
     .placeholder { text-align: center; color: gray; margin-top: 20px; }
     
-    /* Message bubbles */
     .message { margin: 8px 0; word-wrap: break-word; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
@@ -232,9 +231,7 @@
       height: 44px; 
       flex-shrink: 0;
     }
-    .chatbox button:hover {
-      opacity: 0.9;
-    }
+    .chatbox button:hover { opacity: 0.9; }
     .spinner { 
       border: 3px solid rgba(255, 255, 255, 0.3); 
       border-top: 3px solid white; 
@@ -282,13 +279,11 @@
   <script>
     // ==========================================
     // MARKDOWN TO HTML CONVERTER
-    // Converts **bold**, *italic*, `code`, lists, etc. to real HTML
     // ==========================================
     function markdownToHTML(text) {
       if (!text) return '';
       
       let html = text
-        // Escape HTML first
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
@@ -462,7 +457,6 @@
       return msg;
     }
 
-    // Create thinking animation element
     function showThinking() {
       const thinkingDiv = document.createElement('div');
       thinkingDiv.classList.add('message', 'bot', 'thinking');
@@ -491,15 +485,12 @@
       if (text === "") return;
       if (placeholder) placeholder.remove();
 
-      // Add user message
       addMessage(text, 'user');
       userInput.value = "";
       userInput.style.height = "44px";
       sendBtn.innerHTML = '<div class="spinner"></div>';
 
       loading = true;
-
-      // Show "Thinking..." animation
       showThinking();
 
       try {
@@ -510,10 +501,8 @@
         });
         const data = await res.json();
 
-        // Remove thinking indicator
         removeThinking();
 
-        // Convert Markdown to HTML and display complete response
         const formattedHTML = markdownToHTML(data.reply);
         addMessage(formattedHTML, 'bot', true);
 
@@ -538,7 +527,6 @@
     userInput.addEventListener('input', () => {
       userInput.style.height = "auto";
       userInput.style.height = (userInput.scrollHeight) + "px";
-      sendBtn.textContent = userInput.value.trim() === "" ? "➤" : "➤";
     });
   </script>
 </body>
