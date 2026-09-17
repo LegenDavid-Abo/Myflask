@@ -80,7 +80,7 @@ def chat():
 
     payload = {
         # ✅ UPDATED MODEL — llama-3.1-70b-versatile is decommissioned
-        "model": "llama-3.3-70b-versatile",
+        "model": "openai/gpt-oss-120b"
         "messages": [
             {"role": "system", "content": OLAYEMI_SYSTEM},
             {"role": "user", "content": user_input}
